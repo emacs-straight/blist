@@ -1,0 +1,590 @@
+\input texinfo   @c -*-texinfo-*-
+@c %**start of header
+@setfilename blist.info
+@settitle BList
+@c %**end of header
+@copying
+Display bookmarks in an Ibuffer way.
+
+Copyright @copyright{} 2021  Durand
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.3
+or any later version published by the Free Software Foundation;
+with no Invariant Sections, no Front-Cover Texts, and no Back-Cover Texts.
+A copy of the license is included in the section entitled ``GNU
+Free Documentation License''.
+
+A copy of the license is also available from the Free Software
+Foundation Web site at @url{https://www.gnu.org/licenses/fdl.html}.
+
+@end quotation
+
+The document was typeset with
+@uref{https://www.gnu.org/software/texinfo/, GNU Texinfo}.
+
+@end copying
+
+@titlepage
+@title BList
+@subtitle Display bookmarks in an Ibuffer way.
+@author Durand <mmemmew@@gmail.com>
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+@end titlepage
+
+@c Output the table of the contents at the beginning.
+@contents
+
+@ifnottex
+@node Top, About, (dir), (dir)
+@top BList
+
+@insertcopying
+@end ifnottex
+
+@c Merge indices
+
+@syncodeindex fn cp
+@syncodeindex vr cp
+
+@c Generate the nodes for this menu with `C-c C-u C-m'.
+@menu
+* About::
+* Dependency::
+* Usage::
+* Copying This Manual::
+* Index::
+* Key index::
+@end menu
+
+@c Update all node entries with `C-c C-u C-n'.
+@c Insert new nodes with `C-c C-c n'.
+@node About, Dependency, Top, Top
+@chapter About
+@cindex motivation
+
+The built-in library @file{bookmark.el} is useful for storing
+information that can be retrieved later.  But I find the built-in
+mechanism to display the list of bookmarks not so satisfactory, so I
+wrote this little package to display the list of bookmarks in an Ibuffer
+way.
+
+@node Dependency, Usage, About, Top
+@comment  node-name,  next,  previous,  up
+@chapter Dependency
+@cindex engine
+@cindex ilist
+
+This package is driven by another package:
+@url{https://gitlab.com/mmemmew/ilist.git, ilist}.  So make sure to
+install that before using this package.  In fact, the package
+@file{ilist} was written as an abstraction of the mechanisms of this
+package.
+
+@node Usage, Copying This Manual, Dependency, Top
+@comment  node-name,  next,  previous,  up
+@chapter Usage
+@cindex How to use
+@findex blist
+@findex blist-list-bookmarks
+
+After installing, one can call the function @code{blist-list-bookmarks},
+or simply @code{blist}, to display the list of bookmarks.  Of course,
+one can bind a key to that function for easier invocations.
+
+@menu
+* Screenshot::
+* Example configuration::
+* Header::
+* Columns::
+* Groups::
+* Calling convention(s)::
+* Navigations::
+* Marking::
+* Jump to bookmarks::
+* Annotations::
+* Others::
+@end menu
+
+@node Screenshot, Example configuration, Usage, Usage
+@comment  node-name,  next,  previous,  up
+@section Screenshot
+@cindex picture
+
+A picture says more about the package than a thousand words.  Below is
+how the list of bookmarks looks like on my end:
+
+@image{scaled-screenshot1}
+
+@node Example configuration, Header, Screenshot, Usage
+@comment  node-name,  next,  previous,  up
+@section Example configuration
+@cindex example
+@cindex config
+@cindex fixed filter groups
+
+An example configuration is included so that it is easier to begin
+configuring the package.
+
+@vindex blist-filter-groups
+@vindex blist-use-header-p
+@vindex blist-filter-features
+@findex blist-define-criterion
+
+@lisp
+(setq blist-filter-groups
+      (list
+       (cons "Eshell" #'blist-eshell-p)
+       (cons "ELisp" #'blist-elisp-p)
+       (cons "PDF" #'blist-pdf-p)
+       (cons "Info" #'blist-info-p)
+       (cons "Default" #'blist-default-p)))
+
+;; Whether one wants to use the header line or not
+(setq blist-use-header-p nil)
+
+;; Just use manual filter groups for this example
+(setq blist-filter-features (list 'manual))
+
+;; Eshell and Default are defined in the package by default
+
+(blist-define-criterion "elisp" "ELisp"
+  (string-match-p
+   "\\.el$"
+   (bookmark-get-filename bookmark)))
+
+(blist-define-criterion "pdf" "PDF"
+  (eq (bookmark-get-handler bookmark)
+      #'pdf-view-bookmark-jump))
+
+(blist-define-criterion "info" "Info"
+  (eq (bookmark-get-handler bookmark)
+      #'Info-bookmark-jump))
+@end lisp
+
+See the following subsections for more details.
+
+@node Header, Columns, Example configuration, Usage
+@comment  node-name,  next,  previous,  up
+@section Header
+@cindex Always display column names
+@vindex blist-use-header-p
+
+Some users prefer to display the names of columns in the @emph{header
+line}.  It has the advantage that it will always be visible, even though
+the user scrolls the buffer.  This package has an option
+@code{blist-use-header-p} for this purpose.  If that customizable
+variable is non-nil, then blist will display the names of columns in the
+header line.
+
+@node Columns, Groups, Header, Usage
+@comment  node-name,  next,  previous,  up
+@section Columns
+@cindex columns
+@cindex locations
+
+As one can see, the display has two columns: a name column and a
+location column.  The name column shows the names of the bookmarks,
+while the location column shows the @emph{locations}, which are either
+the @strong{filename} or the @strong{location} attributes of the
+bookmarks.
+
+@cindex display locations, toggle
+@vindex blist-display-location-p
+@findex blist-toggle-location
+
+The variable @code{blist-display-location-p} controls whether to display
+the locations or not.  Also, one can toggle the display of the locations
+interactively by @code{blist-toggle-location}.
+
+@vindex blist-maximal-name-len
+@vindex blist-elide-string
+
+The variable @code{blist-maximal-name-len} determines the maximal length
+of the name column.  And the variable @code{blist-elide-string}
+determines how to elide the name, when it gets too long.
+
+@cindex column function
+@findex blist-name-column
+
+If one feels like so, then one can play with the function
+@code{blist-name-column} to control the name column.
+
+@node Groups, Calling convention(s), Columns, Usage
+@comment  node-name,  next,  previous,  up
+@section Groups
+
+@cindex filter groups
+@cindex sections
+
+An important feature of this package is the @emph{filter groups}.  They
+are criteria that group bookmarks together under various sections.  So
+one can find all bookmarks of, say, @emph{Eshell buffers} in one
+section.
+
+There are two types of filter groups: the fixed filter groups and the
+automatic filter groups.
+
+@menu
+* Fixed filter groups::
+* Automatic filter groups::
+* Combine fixed and automatic filter groups::
+@end menu
+
+@node Fixed filter groups, Automatic filter groups, Groups, Groups
+@comment  node-name,  next,  previous,  up
+@subsection Fixed filter groups
+
+@cindex fixed filter groups, format
+@vindex blist-filter-groups
+
+The fixed filter groups are stored in the variable
+@code{blist-filter-groups}.  One can add or remove filter groups to that
+variable.  That variable is a list of filter groups, while each filter
+group is a cons cell of the form @code{(NAME . FUN)}, where @code{NAME}
+is a string which will be displayed as the section header, and
+@code{FUN} is a function that accepts a bookmark as its argument, and
+returns non-nil when and only when that bookmark belongs to the group.
+
+@findex blist-define-criterion
+
+Since defining the group functions might be tedious, the package also
+provides a convenient macro @code{blist-define-criterion} for the users
+to define filter groups easily.  See the documentation string of that
+macro for details.
+
+@cindex fixed filter groups, order
+
+Also, the order of the filter groups matters: the filter groups that
+occur earlier on the list have higher priority.  So if an item belongs
+to multiple groups, it will be classified under the group that is the
+earliest on the list.
+
+@cindex fixed filter groups, default
+@vindex blist-filter-groups
+@vindex blist-filter-default-label
+
+Note that the default filter group, which always returns @code{t} for
+every bookmark, is not needed.  If a bookmark does not belong to any
+filter group, it will be grouped into a default group, whose name is
+given by @code{blist-filter-default-label}.
+
+@cindex flexibility
+
+Note that this is a feature of ``blist'', and not of ``ilist'': you can
+display a list without default groups.
+
+@node Automatic filter groups, Combine fixed and automatic filter groups, Fixed filter groups, Groups
+@comment  node-name,  next,  previous,  up
+@subsection Automatic filter groups
+
+@cindex automatic filter groups, mechanism
+
+An automatic filter group is a function that can give labels to elements
+in a list.  These labels will be used to group elements automatically:
+the elements with the same label will be grouped together.  Besides, an
+automatic filter group is also responsible for sorting group labels, and
+for giving a default label, if no default labels are specified.
+
+To be precise, an automatic filter group is a function with the
+signature: @code{(ELEMENT &optional TYPE)}.  The optional argument
+@code{TYPE} says what the caller wants from the function:
+
+@cindex automatic filter groups, types
+
+@table@code
+@item nil
+If it is omitted or nil, the function should just return the label for
+@code{ELEMENT}.
+@item default
+If it is the symbol @code{default}, the function should return a default
+label.
+@item sorter
+If it is the symbol @code{sorter}, the function should return a function
+with two arguments, @code{X} and @code{Y}.  This returned function
+should return a non-nil value if and only if group @code{X} should be
+placed earlier than group @code{Y}.
+@end table
+
+@vindex blist-automatic-filter-groups
+@findex blist-automatic-filter-groups-default
+
+The automatic filter group to use is stored in the variable
+@code{blist-automatic-filter-groups}.  Its default value is
+@code{blist-automatic-filter-groups-default}.
+
+@cindex custom automatic filter groups
+@findex ilist-define-automatic-group
+@findex ilist-dag
+
+If you want to define your own automatic filter group, then the macro
+@code{ilist-define-automatic-group}, or @code{ilist-dag}, defined in
+``ilist'', might come in handy.  The default automatic filter group is
+defined by that macro, for your information.
+
+@node Combine fixed and automatic filter groups,  , Automatic filter groups, Groups
+@comment  node-name,  next,  previous,  up
+@subsection Combine fixed and automatic filter groups
+
+@cindex filter groups, combine
+@vindex blist-filter-features
+@findex blist-filter-groups
+
+What if one wants to use both the fixed filter groups and the automatic
+filter group to group elements?  Then one can set the variable
+@code{blist-filter-features}.  This variable should be a list of
+@emph{featuers} to use.  Currently there are two features: @code{manual}
+and @code{auto}.  If one adds @code{manual} to the list of features,
+then the fixed filter groups will be used; if one adds @code{auto} to
+the list of features, then the automatic filter groups will be used.
+
+@vindex blist-filter-default-label
+
+Further, if one adds both @code{manual} and @code{auto} to the list of
+features, then both filter groups will be used.  The elements will first
+go through the fixed filter groups to see if it belongs to some fixed
+filter group.  If an element belongs to none of the fixed filter groups,
+then the automatic filter group will be used to find the label for the
+element.  If a poor element is given no labels, then the default label
+@code{blist-filter-default-label} will be used.
+
+Wait, one asks, what if the list contains no features?  Don't worry, it
+is not the end of blist.  In this case all elements will be considered
+as belonging to the default group @code{blist-filter-default-label}.
+
+@node Calling convention(s), Navigations, Groups, Usage
+@comment  node-name,  next,  previous,  up
+@section Calling convention(s)
+
+@cindex calling conventions
+
+For the ease and brevity of writing, let's establish a convention for
+describing the interactive arguments of functions.
+
+In this document, the phrase @strong{XYZ-convention} should be
+understood as a specification of how the arguments to a function are
+supposed to be obtained when called interactively.  Here the letters
+@strong{XYZ} have special meanings:
+
+@strong{Note:} It is implicitly implied that the bookmarks in the folded
+groups are not operated upon by user commands.
+
+@table @kbd
+@item M
+Use marked bookmarks.
+
+@item R
+Use the bookmarks in the region, if the region is active.
+
+@item G
+Use the bookmarks of a group, if the point is at the heading of that
+group.
+
+@item 0
+Use the 0-th bookmark, that is, the bookmark at point, if any.
+
+@item C
+Use use @code{completing-read} to let the user choose a bookmark.
+
+@item P
+Use the ARG next bookmarks, where ARG is the prefix argument.
+@end table
+
+@node Navigations, Marking, Calling convention(s), Usage
+@comment  node-name,  next,  previous,  up
+@section Navigations
+
+@cindex navigations
+@cindex move, moving
+@cindex command
+
+The following is a list of default key-bindings to navigate in the list
+of bookmarks.  Except for the two @emph{jump} commands, they all follow
+the @strong{P-convention}.
+
+@table @kbd
+@kindex n
+@kindex p
+@item n
+@itemx p
+@vindex blist-movement-cycle
+go to next/previous line.  Whether it treats the top of the buffer as
+identified with the bottom of the buffer is controlled by the variable
+@code{blist-movement-cycle}.
+@kindex N
+@kindex P
+@item N
+@itemx P
+go to next/previous line that is not a group heading.
+@kindex M-n
+@kindex M-p
+@item M-n
+@itemx M-p
+go to next/previous group heading.
+@kindex j
+@kindex M-g
+@item j
+@itemx M-g
+jump to a bookmark, using the @strong{C-convention}.
+@kindex J
+@kindex M-j
+@kindex M-G
+@item J
+@itemx M-j
+@itemx M-G
+jump to a group heading, using the @strong{C-convention}.
+@kindex M-@{
+@kindex (
+@item M-@{
+@itemx (
+go to the previous marked bookmark.
+@kindex )
+@kindex M-@}
+@item )
+@itemx M-@}
+go to the next marked bookmark.
+@end table
+
+@node Marking, Jump to bookmarks, Navigations, Usage
+@comment  node-name,  next,  previous,  up
+@section Marking
+
+@cindex marks
+
+The following is a list of default key-bindings to mark bookmarks and to
+operate on the bookmarks.
+
+Unless stated otherwise, they all follow the @strong{P-convention}.
+
+@table @kbd
+@kindex m
+@item m
+@vindex blist-default-mark
+Mark the bookmark with the default mark (@code{blist-default-mark}) and
+advance.
+@kindex d
+@kindex k
+@item d
+@itemx k
+Mark for deletion and advance.
+@kindex C-d
+@item C-d
+Mark for deletion and go backwards.
+@kindex x
+@item x
+Delete all bookmarks that are marked for deletion.
+@kindex D
+@item D
+Delete the bookmark immediately (the @strong{MRG0-convention}).
+@kindex u
+@item u
+Unmark the bookmark and advance.
+@kindex DEL
+@item @key{DEL}
+Unmark the bookmark and go backwards.
+@kindex U
+@item U
+Unmark all bookmarks.
+@kindex M-DEL
+@item M-@key{DEL}
+@kindex * *
+@itemx * *
+prompt for a mark and unmark all boomarks that are marked with the
+entered mark (using @code{read-char}).
+@kindex % n
+@item % n
+Mark bookmarks whose name matches a regular expression.
+@kindex % l
+@item % l
+Mark bookmarks whose location matches a regular expression.
+@kindex * c
+@item * c
+Change the marks from OLD to NEW (using @code{read-char})
+@end table
+
+@node Jump to bookmarks, Annotations, Marking, Usage
+@comment  node-name,  next,  previous,  up
+@section Jump to bookmarks
+
+@cindex jumping
+
+@kindex v
+The following lists the default key-bindings for jumping to, or opening
+bookmarks.  Except for @kbd{v}, they operate on the bookmark (or group)
+at point.
+
+@table @kbd
+@kindex RET
+@item @key{RET}
+Either open the bookmark in this window or toggle the group at point.
+@kindex o
+@item o
+Open the bookmark in another window.
+@kindex v
+@item v
+@vindex blist-select-manner
+Select the bookmarks (the @strong{MG0-convention}).  How multiple
+bookmarks are opened is controlled by the variable
+@code{blist-select-manner}.  See its documentation for details.
+@end table
+
+@node Annotations, Others, Jump to bookmarks, Usage
+@comment  node-name,  next,  previous,  up
+@section Annotations
+
+@cindex annotations
+@cindex decorations
+
+The following lists the default key-bindings for operating on the
+annotations of bookmarks.
+
+@table @kbd
+@kindex a
+@item a
+View the annotations of bookmarks (the @strong{MGC-convention}).
+@kindex A
+@item A
+View the annotations of all bookmarks.
+@kindex e
+@item e
+Edit the annotation of the bookmark at point.  If called with
+@code{universal-argument}, prompt for the bookmark to edit with
+completion.
+@end table
+
+@node Others,  , Annotations, Usage
+@comment  node-name,  next,  previous,  up
+@section Others
+
+@cindex miscellaneous
+
+Some functions are too minor to record here.  Use @code{describe-mode}
+in the list of bookmarks to see all available key-bindings.
+
+@node Copying This Manual, Index, Usage, Top
+@appendix Copying This Manual
+
+@c @menu
+@c * GNU Free Documentation License:  License for copying this manual.
+@c @end menu
+
+@c Get fdl.texi from https://www.gnu.org/licenses/fdl.html
+@include fdl-1.3.texi
+
+@node Index, Key index, Copying This Manual, Top
+@appendix Index
+
+@printindex cp
+
+@node Key index,  , Index, Top
+@comment  node-name,  next,  previous,  up
+@appendix Key Index
+
+The list of keys.
+
+@printindex ky
+
+@bye

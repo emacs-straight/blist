@@ -1,0 +1,121 @@
+2021-12-28  李俊緯  <mmemmew@gmail.com>
+
+	* blist.el: Add the variable blist-filter-features to choose how
+	to combine the fixed and the automatic filter groups.
+
+	Also update documentation files accordingly.
+
+2021-12-23  Durand  <mmemmew@gmail.com>
+
+	Update documentation.
+
+2021-12-22  李俊緯  <mmemmew@gmail.com>
+
+	New user option: blist-use-header-p.  Now the user can choose to
+	use the header line to display the column names.
+
+2021-12-21  李俊緯  <mmemmew@gmail.com>
+
+	Fix errors discovered by flymake.
+
+2021-12-20  李俊緯  <mmemmew@gmail.com>
+
+	* blist.el: Fix bugs caused by using invisible texts.
+
+2021-12-19  JSDurand  <mmemmew@gmail.com>
+
+	* blist.el: Implement hiding groups by buffer-invisibility-spec.
+
+2021-09-17  JSDurand  <mmemmew@gmail.com>
+
+	* blist.el (blist-relocate): Fix a bug caused by a typo.
+
+2021-09-17  JSDurand  <mmemmew@gmail.com>
+
+	Add Info and PDF manuals
+	* README.org (Columns, Calling convention(s)): Fix some typos.
+
+	* blist.texinfo: Source of manuals.
+
+	* blist.info: An Info manual that is suitable for reading inside
+	  Emacs.
+
+	* blist.pdf: For those without Emacs, a PDF manual is provided as an
+	  unfortunate fallback.
+
+	* scaled-screenshot1.png: Scale down the screen shot to fit in the
+	  display in the Info manual.
+
+2021-09-17  JSDurand  <mmemmew@gmail.com>
+
+	Fix bugs caused by empty annotations.
+
+2021-09-16  JSDurand  <mmemmew@gmail.com>
+
+	Fix some README issues and add README.
+
+2021-09-16  JSDurand  <mmemmew@gmail.com>
+
+	Implement editing annotations.
+
+2021-09-16  JSDurand  <mmemmew@gmail.com>
+
+	Implement loading functionality.
+
+2021-09-15  JSDurand  <mmemmew@gmail.com>
+
+	Fix a wrong function call.
+
+2021-09-15  JSDurand  <mmemmew@gmail.com>
+
+	new: Preserve the original point in building the list.
+
+2021-09-14  JSDurand  <mmemmew@gmail.com>
+
+	More features.
+	(blist-select-manner): Add the option of "main-side", and modify
+	defcustom type keyword.
+
+	(blist-select): Support main-side way of displaying multiple windows.
+
+	(blist-locate): Echo the location of the bookmark.
+
+	(blist-relocate-history, blist-relocate): Set the location of an
+	existing bookmark to a new location, to adapt to this fast-changing
+	world.
+
+	(blist-show-annotation, blist-show-all-annotations): Show annotations
+	of some or all bookmarks.
+
+2021-09-14  JSDurand  <mmemmew@gmail.com>
+
+	More features.
+	* blist.el (blist-annotation-column-name, blist-annotation-column):
+	Add a column to show if the bookmark has annotations.
+
+	(blist-set-annotation-column): This command updates the annotation
+	column if the name of the column changes.
+
+	(blist-select-manner): How to select multiple bookmarks.  The user can
+	choose to open horizontally, vertically, or even in a spiral manner,
+	with detailed controls.
+
+	(blist-rename-history, blist-rename): Rename a bookmark.
+
+	(blist-get-annotation): Return if BOOKMARK has annotation.  If
+	BOOKMARK has no annotation, return a space string.
+
+	(blist-prepare-select-windows): Prepare the windows for selection.
+
+	(blist-select): Select multiple windows.
+
+2021-09-13  JSDurand  <mmemmew@gmail.com>
+
+	Fix documentations.
+	* blist.el (blist-open-other-window, blist-toggle-marks)
+	(blist-change-marks, blist-unmark-all-mark)
+	(blist-mark-for-deletion-backward): Fix documentations.
+
+	initial working version
+	Still in deearth of a lot of functionalities, but kind of usable
+	now.
