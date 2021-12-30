@@ -1,9 +1,10 @@
 ;;; blist.el --- Display bookmarks in an ibuffer way  -*- lexical-binding: t; -*-
 
-;; Copyright (C) 2021  李俊緯
+;; Copyright (C) 2021  Free Software Foundation, Inc.
 
-;; Author: 李俊緯 <mmemmew@gmail.com>
-;; Keywords: convenience, languages
+;; Author: Durand <mmemmew@gmail.com>
+;; Keywords: convenience
+;; Version: 0.1
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -44,14 +45,12 @@
 
 (defcustom blist-buffer-name "*Bookmark List*"
   "The name of the buffer used to display bookmarks."
-  :group 'blist
   :type 'string)
 
 ;;;; Display location or not
 
 (defcustom blist-display-location-p t
   "Whether or not display the locations of bookmarks."
-  :group 'blist
   :type 'boolean
   :local t)
 
@@ -59,7 +58,6 @@
 
 (defcustom blist-expert nil
   "If non-nil, don't ask to confirm the deletion of bookmarks."
-  :group 'blist
   :type 'boolean)
 
 ;;;; Filter groups
@@ -68,7 +66,6 @@
 
 (defcustom blist-filter-default-label "Default"
   "The label used for the default group automatically added."
-  :group 'blist
   :type 'string)
 
 ;;;;; fixed filter groups
@@ -88,7 +85,6 @@ combine fixed groups and automatic ones.
 
 If `blist-default-p' is not used as a criterion, then a default
 filter group will be appended at the end."
-  :group 'blist
   :type '(repeat (cons string function)))
 
 ;;;;; automatic filter groups
@@ -101,18 +97,27 @@ automatic filter group should behave.
 
 And see the user option `blist-filter-features' for how to
 combine fixed groups and automatic ones."
-  :group 'blist
   :type 'function)
+
+;;;;; Default sorter
+
+(defun blist-filter-sorter-default (x y)
+  "The function used to sort group labels.
+Return non-nil if and only if group X should come before group
+Y.
+
+Used by `ilist-dag' to define an automatic filter group."
+  (cond
+   ((string= x blist-filter-default-label) nil)
+   ((string= y blist-filter-default-label))
+   ((string-lessp x y))))
 
 ;;;;; Default automatic grouping
 
 ;; See the documentation string of `ilist-dag' for more details.
 
 (ilist-dag "blist-default" blist-filter-default-label
-           (cond
-            ((string= x "Default") nil)
-            ((string= y "Default"))
-            ((string-lessp x y)))
+           #'blist-filter-sorter-default
   (save-match-data
     (let* ((handler (bookmark-get-handler element))
            (handler-name (and handler (format "%S" handler)))
@@ -166,7 +171,6 @@ groups.
 If neither of the symbols 'auto' and 'manual' is an element of
 the list, then every bookmark will be displayed under the
 group labelled with `blist-filter-default-label'."
-  :group 'blist
   :type '(repeat
           (choice
            (const :tag "use fixed filter groups" manual)
@@ -266,7 +270,6 @@ ELEMENT and TYPE."
 
 (defcustom blist-discard-empty-p t
   "Whether to display empty groups or not."
-  :group 'blist
   :type 'boolean)
 
 ;;;; Cycle movement
@@ -275,14 +278,12 @@ ELEMENT and TYPE."
   "Whether \"round\" the buffer when moving.
 To round the buffer means to assume that the top of the buffer is
 identified with the bottom of the buffer."
-  :group 'blist
   :type 'boolean)
 
 ;;;; Maximal displayed bookmark name length
 
 (defcustom blist-maximal-name-len 0.4
   "The maximal length of the displayed bookmark name."
-  :group 'blist
   :type '(choice
           (integer :tag "Number of characters")
           (float :tag "Fraction of window body width")))
@@ -291,21 +292,18 @@ identified with the bottom of the buffer."
 
 (defcustom blist-elide-string "..."
   "The string to put at the end of a string that is too long."
-  :group 'blist
   :type 'string)
 
 ;;;; Deletion mark character
 
 (defcustom blist-deletion-mark ?D
   "The character to mark a bookmark for deletion."
-  :group 'blist
   :type 'character)
 
 ;;;; Default mark character
 
 (defcustom blist-default-mark ?>
   "The character that is used for mark by default."
-  :group 'blist
   :type 'character)
 
 ;;;; Sorter
@@ -313,7 +311,6 @@ identified with the bottom of the buffer."
 (defcustom blist-default-sorter nil
   "The default sorter.
 See `blist-sorter'."
-  :group 'blist
   :type '(choice
           (const nil :tag "No sorting")
           (function :tag "Sorting function")))
@@ -338,7 +335,6 @@ If BOOKMARK has no annotation, return a space string."
 annotations.
 
 Only the first letter will be shown."
-  :group 'blist
   :type 'string)
 
 (defun blist-annotation-column ()
@@ -380,7 +376,6 @@ horizontal.
 
 There will be no errors if there are unrecognized symbols in the
 list; they are simply ignored."
-  :group 'blist
   :type '(repeat
           (choice
            (const :tag "Vertically" vertical)
@@ -397,14 +392,12 @@ list; they are simply ignored."
 
 (defcustom blist-edit-annotation-buffer-name "*Edit Bookmark Annotation*"
   "The name of the buffer used for editing bookmark annotation."
-  :group 'blist
   :type 'string)
 
 ;;;; Whether to use header or not
 
 (defcustom blist-use-header-p nil
   "If non-nil, show a header of column names as well."
-  :group 'blist
   :type 'boolean)
 
 ;;; Variables
@@ -745,7 +738,6 @@ Note that invisible lines will not be considered here."
 
 ;; I almost forgot that I want to open bookmarks.
 
-;;;###autoload
 (defun blist-open ()
   "Open the bookmark at point."
   (interactive)
@@ -759,7 +751,6 @@ Note that invisible lines will not be considered here."
 
 ;;;; Open in another window
 
-;;;###autoload
 (defun blist-open-other-window ()
   "Open the bookmark at point in another window."
   (interactive)
@@ -846,7 +837,6 @@ See `blist-select-manner' for what MANNER should look like."
 
 ;;;;; select function
 
-;;;###autoload
 (defun blist-select (&optional arg)
   "Open all marked bookmarks.
 If there are no marked bookmarks, and if the point is on a group
@@ -905,7 +895,6 @@ controls how multiple bookmarks are selected."
 
 ;;;; rename
 
-;;;###autoload
 (defun blist-rename (old new)
   "Rename the bookmark at point by NEW.
 If the current buffer is in `blist-mode', this also runs
@@ -939,6 +928,7 @@ at point, prompt for the OLD bookmark to rename."
                   ((ilist-get-index)
                    (bookmark-name-from-full-record
                     (nth (ilist-get-index) bookmark-alist)))))))
+  (blist-assert-mode)
   ;; error out for invalid input
   (cond
    ((or (not (and
@@ -960,7 +950,6 @@ but got %S and %S"
 
 ;;;; locate
 
-;;;###autoload
 (defun blist-locate ()
   "Display the location of the bookmark at point in the echo area."
   (interactive)
@@ -978,7 +967,6 @@ but got %S and %S"
 (defvar blist-relocate-history nil
   "The history variable of `blist-relocate'.")
 
-;;;###autoload
 (defun blist-relocate (bookmark)
   "Relocate BOOKMARK to another location.
 
@@ -1045,7 +1033,6 @@ Otherwise, if point is at a bookmark, relocate that bookmark."
 
 ;;;; show annotations
 
-;;;###autoload
 (defun blist-show-annotation (&optional arg)
   "Show the annotation of the bookmark(s) in another window.
 Only the annotations of bookmarks with annotations will be shown.
@@ -1115,7 +1102,6 @@ bookmark at point, use `completing-read' to choose one."
 
 ;;;; show all annotations
 
-;;;###autoload
 (defun blist-show-all-annotations (targets)
   "Show the annotation of all bookmarks of TARGETS in another \
 window.
@@ -1194,7 +1180,6 @@ for editing annotation in other situations.
 
 ;;;;;; Send edit
 
-;;;###autoload
 (defun blist-send-edit-annotation ()
   "Use buffer contents as annotation for a bookmark.
 Lines beginning with `#' are ignored."
@@ -1222,7 +1207,6 @@ Lines beginning with `#' are ignored."
 
 ;;;;;; Abort edit
 
-;;;###autoload
 (defun blist-abort-edit-annotation ()
   "Kill the current buffer and quit the window.
 This only does something if the major mode is derived from
@@ -1247,7 +1231,6 @@ This only does something if the major mode is derived from
 
 ;;;;; Edit function
 
-;;;###autoload
 (defun blist-edit-annotation (bookmark)
   "Edit annotation for BOOKMARK.
 If called with \\[universal-argument], prompt for the bookmark to
@@ -1263,6 +1246,7 @@ edit with completion."
      ((ilist-get-index)
       (nth (ilist-get-index) bookmark-alist))
      ((user-error "No bookmark to edit")))))
+  (blist-assert-mode)
   (setq bookmark (bookmark-name-from-full-record
                   (bookmark-get-bookmark bookmark t)))
   (pop-to-buffer
@@ -1320,7 +1304,6 @@ progress."
 
 ;;;;; Load function
 
-;;;###autoload
 (defun blist-load (file &optional overwrite no-msg default)
   "Load bookmarks from FILE (which must be in bookmark format).
 Appends the loaded bookmarks to the front of the list of bookmarks.
@@ -1354,6 +1337,7 @@ get unique numeric suffixes \"<2>\", \"<3>\", etc."
        (format "Load bookmarks from: [%s] " default)
        (file-name-directory default) default t)
       current-prefix-arg nil current-prefix-arg)))
+  (blist-assert-mode)
   (let ((file (expand-file-name file)))
     (cond
      ((not (file-readable-p file))
@@ -1401,7 +1385,6 @@ get unique numeric suffixes \"<2>\", \"<3>\", etc."
 ;; user-friendly: the texts are not altered, and the user can be sure
 ;; that no data are lost.
 
-;;;###autoload
 (defun blist-toggle-group ()
   "Toggle the visibility of the group at point."
   (interactive)
@@ -1409,6 +1392,7 @@ get unique numeric suffixes \"<2>\", \"<3>\", etc."
          (group-symbol (intern (format "[ %s ]" group-header)))
          (hidden-p (ilist-get-property (point) 'blist-hidden))
          (inhibit-read-only t))
+    (blist-assert-mode)
     (cond
      ((null group-header)
       ;; not at group
@@ -1447,10 +1431,10 @@ get unique numeric suffixes \"<2>\", \"<3>\", etc."
 
 ;;;; Generic return
 
-;;;###autoload
 (defun blist-return ()
   "Either open the bookmark or toggle the group."
   (interactive)
+  (blist-assert-mode)
   (cond
    ((ilist-get-group) (blist-toggle-group))
    ((ilist-get-index) (blist-open))
@@ -1458,10 +1442,10 @@ get unique numeric suffixes \"<2>\", \"<3>\", etc."
 
 ;;;; Toggle location display
 
-;;;###autoload
 (defun blist-toggle-location ()
   "Toggle the display of locations of bookmarks."
   (interactive)
+  (blist-assert-mode)
   (let (temp)
     ;; a little C-like hacky style
     (setq
@@ -1481,7 +1465,6 @@ get unique numeric suffixes \"<2>\", \"<3>\", etc."
 
 ;;;; Jumping around
 
-;;;###autoload
 (defun blist-jump-to-line (name)
   "Jump to the line containing the bookmark with NAME."
   (interactive
@@ -1512,11 +1495,9 @@ get unique numeric suffixes \"<2>\", \"<3>\", etc."
            (res
             (setq pos (point))
             ;; per chance the line is hidden
-            (let ((invi (get-text-property pos 'invisible)))
-              (cond ((ilist-invisible-property-p
-                      invi buffer-invisibility-spec)
-                     (blist-prev-group 1)
-                     (blist-toggle-group))))))))
+            (cond ((invisible-p pos)
+                   (blist-prev-group 1)
+                   (blist-toggle-group)))))))
         ;; don't skip invisible lines here
         (ilist-forward-line 1 nil nil t)))
     (cond
@@ -1525,7 +1506,6 @@ get unique numeric suffixes \"<2>\", \"<3>\", etc."
 
 ;;;; blist-jump-to-group
 
-;;;###autoload
 (defun blist-jump-to-group (name)
     "Jump to the line containing the bookmark with NAME."
   (interactive
@@ -1555,7 +1535,6 @@ get unique numeric suffixes \"<2>\", \"<3>\", etc."
 
 ;;;; toggle marks
 
-;;;###autoload
 (defun blist-toggle-marks ()
    "Toggle the mark statuses in the buffer.
 Lines marked with `blist-default-mark' become unmarked, and lines
@@ -1565,6 +1544,7 @@ If region is active, operate only on the region.
 
 If the point is on a group header, then only operate on that group."
   (interactive)
+  (blist-assert-mode)
   (let* ((inhibit-read-only t)
          (temp (save-excursion (blist-operate-range 1 t)))
          (start (car temp))
@@ -1583,7 +1563,6 @@ If the point is on a group header, then only operate on that group."
 
 ;;;; change marks
 
-;;;###autoload
 (defun blist-change-marks (old new)
   "Change all OLD mark to NEW mark.
 OLD and NEW are both characters used to mark buffers."
@@ -1593,6 +1572,7 @@ OLD and NEW are both characters used to mark buffers."
 	  (new (progn (message  "Change %c marks to (new mark): " old)
 		      (read-char))))
      (list old new)))
+  (blist-assert-mode)
   (let ((inhibit-read-only t))
     (ilist-map-lines
      (lambda ()
@@ -1604,7 +1584,6 @@ OLD and NEW are both characters used to mark buffers."
 
 ;;;; blist-unmark-forward
 
-;;;###autoload
 (defun blist-unmark-forward (&optional arg)
   "Unmark bookmarks.
 If the region is active, unmark the region.
@@ -1626,7 +1605,6 @@ groups to unmark."
 
 ;;;; blist-unmark-backward
 
-;;;###autoload
 (defun blist-unmark-backward (&optional arg)
   "Unmark bookmarks.
 If the region is active, unmark the region.
@@ -1642,7 +1620,6 @@ groups to unmark."
 
 ;;;; blist-unmark-all
 
-;;;###autoload
 (defun blist-unmark-all ()
   "Unmark all bookmarks."
   (interactive)
@@ -1652,7 +1629,6 @@ groups to unmark."
 
 ;;;; blist-unmark-all-mark
 
-;;;###autoload
 (defun blist-unmark-all-mark (a-mark)
   "Unmark all lines marked with a specific A-MARK.
 If A-MARK is RET, then unmark all marks."
@@ -1669,7 +1645,6 @@ If A-MARK is RET, then unmark all marks."
 
 ;;;; blist-delete-marked
 
-;;;###autoload
 (defun blist-delete-marked ()
   "Delete marked bookmarks from `bookmark-alist'."
   (interactive)
@@ -1718,7 +1693,6 @@ If A-MARK is RET, then unmark all marks."
 
 ;;;; blist-do-delete
 
-;;;###autoload
 (defun blist-do-delete ()
   "Delete bookmarks marked for deletion."
   (interactive)
@@ -1746,7 +1720,6 @@ If A-MARK is RET, then unmark all marks."
 
 ;;;; blist-mark-for-deletion
 
-;;;###autoload
 (defun blist-mark-for-deletion (arg)
   "Mark for deletion.
 If the region is active, mark the region for deletion.
@@ -1777,7 +1750,6 @@ The negative of ARG is send to `blist-mark-for-deletion'."
 
 ;;;; blist-mark
 
-;;;###autoload
 (defun blist-mark (arg)
   "Mark bookmarks.
 If the region is active, mark the region.
@@ -1799,7 +1771,6 @@ groups to mark."
 
 ;;;; blist-mark-by-name
 
-;;;###autoload
 (defun blist-mark-by-name (name &optional mark-char)
   "Mark lines matching NAME with MARK-CHAR.
 Interactively, query the user for NAME.  And if called with
@@ -1811,6 +1782,7 @@ Interactively, query the user for NAME.  And if called with
      (current-prefix-arg
       (let ((cursor-in-echo-area t))
         (read-char "Mark with character: "))))))
+  (blist-assert-mode)
   (cond
    ((not (characterp mark-char))
     (setq mark-char blist-default-mark)))
@@ -1829,7 +1801,6 @@ Interactively, query the user for NAME.  And if called with
 
 ;;;; blist-mark-by-location
 
-;;;###autoload
 (defun blist-mark-by-location (name &optional mark-char)
   "Mark lines with location matching NAME with MARK-CHAR.
 Interactively, query the user for NAME.  And if called with
@@ -1841,6 +1812,7 @@ Interactively, query the user for NAME.  And if called with
      (current-prefix-arg
       (let ((cursor-in-echo-area t))
         (read-char "Mark with character: "))))))
+  (blist-assert-mode)
   (cond
    ((not (characterp mark-char))
     (setq mark-char blist-default-mark)))
@@ -1893,7 +1865,6 @@ Interactively, query the user for NAME.  And if called with
 
 ;;;; blist-prev-group
 
-;;;###autoload
 (defun blist-prev-group (arg)
   "Go to previous ARG group."
   (interactive "p")
@@ -1902,7 +1873,6 @@ Interactively, query the user for NAME.  And if called with
 
 ;;;; blist-next-group
 
-;;;###autoload
 (defun blist-next-group (arg)
   "Go to next ARG group."
   (interactive "p")
@@ -1911,7 +1881,6 @@ Interactively, query the user for NAME.  And if called with
 
 ;;;; blist-next-item
 
-;;;###autoload
 (defun blist-next-item (arg)
   "Go to next ARG item.
 An item means a line that is not a group header.
@@ -1924,7 +1893,6 @@ stop at."
 
 ;;;; blist-prev-item
 
-;;;###autoload
 (defun blist-prev-item (arg)
   "Go to previous ARG item.
 An item means a line that is not a group header.
@@ -1938,7 +1906,6 @@ stop at."
 
 ;;;; blist-prev-line
 
-;;;###autoload
 (defun blist-prev-line (arg)
   "Go to previous ARG line."
   (interactive "p")
@@ -1947,7 +1914,6 @@ stop at."
 
 ;;;; blist-next-line
 
-;;;###autoload
 (defun blist-next-line (arg)
   "Go to next ARG line."
   (interactive "p")

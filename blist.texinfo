@@ -58,6 +58,31 @@ The document was typeset with
 * Copying This Manual::
 * Index::
 * Key index::
+
+@detailmenu
+ --- The Detailed Node Listing ---
+
+Usage
+
+* Screenshot::
+* Example configuration::
+* Header::
+* Columns::
+* Groups::
+* Calling convention(s)::
+* Navigations::
+* Marking::
+* Jump to bookmarks::
+* Annotations::
+* Others::
+
+Groups
+
+* Fixed filter groups::
+* Automatic filter groups::
+* Combine fixed and automatic filter groups::
+
+@end detailmenu
 @end menu
 
 @c Update all node entries with `C-c C-u C-n'.
@@ -369,8 +394,8 @@ understood as a specification of how the arguments to a function are
 supposed to be obtained when called interactively.  Here the letters
 @strong{XYZ} have special meanings:
 
-@strong{Note:} It is implicitly implied that the bookmarks in the folded
-groups are not operated upon by user commands.
+@strong{Note:} It is implied that the bookmarks in the folded groups are
+not operated upon by user commands.
 
 @table @kbd
 @item M

@@ -5,3 +5,8 @@
 *.kys
 *.log
 *.toc
+*.elc
+*.pdf
+*.info
+blist-autoloads.el
+blist-pkg.el

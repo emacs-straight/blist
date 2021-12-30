@@ -196,8 +196,8 @@ a specification of how the arguments to a function are supposed to be
 obtained when called interactively.  Here the letters "XYZ" have
 special meanings:
 
-*Note:* It is implicitly implied that the bookmarks in the folded
-groups are not operated upon by user commands.
+*Note:* It is implied that the bookmarks in the folded groups are not
+operated upon by user commands.
 
 - "M": marked bookmarks
 - "R": the bookmarks in the region, if the region is active
