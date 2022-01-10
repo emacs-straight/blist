@@ -8,5 +8,6 @@
 *.elc
 *.pdf
 *.info
+*.patch
 blist-autoloads.el
 blist-pkg.el
