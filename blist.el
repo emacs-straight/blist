@@ -888,7 +888,8 @@ controls how multiple bookmarks are selected."
          (orig-window (car windows)))
     (while (consp windows)
       (select-window (car windows))
-      (bookmark-jump (car marked-items))
+      (bookmark-jump
+       (bookmark-name-from-full-record (car marked-items)))
       (setq marked-items (cdr marked-items))
       (setq windows (cdr windows)))
     (select-window orig-window)))
@@ -1439,6 +1440,8 @@ get unique numeric suffixes \"<2>\", \"<3>\", etc."
    ((ilist-get-group) (blist-toggle-group))
    ((ilist-get-index) (blist-open))
    ((user-error "Nothing to do here"))))
+
+;; TODO: Hide all other groups
 
 ;;;; Toggle location display
 
