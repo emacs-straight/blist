@@ -4,7 +4,7 @@
 
 ;; Author: Durand <mmemmew@gmail.com>
 ;; Keywords: convenience
-;; Version: 0.1
+;; Version: 0.2
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -646,6 +646,7 @@ used as a `revert-buffer-function'."
   (define-key map (vector 'tab) #'blist-next-group)
   (define-key map (vector 'backtab) #'blist-prev-group)
   (define-key map (vector 'return) #'blist-return)
+  (define-key map (vector 'S-return) #'blist-toggle-other-groups)
   (define-key map (vector ?o) #'blist-open-other-window)
   (define-key map (vector ?v) #'blist-select)
   (define-key map (vector ?r) #'blist-rename)
@@ -1441,7 +1442,26 @@ get unique numeric suffixes \"<2>\", \"<3>\", etc."
    ((ilist-get-index) (blist-open))
    ((user-error "Nothing to do here"))))
 
-;; TODO: Hide all other groups
+;;;; Hide all other groups than the current group
+
+(defun blist-toggle-other-groups ()
+  "Toggle all other groups than the current one."
+  (interactive)
+  (blist-assert-mode)
+  (let ((current-group (ilist-get-group)))
+    (cond
+     (current-group
+      (ilist-map-lines
+       (lambda ()
+         (blist-toggle-group))
+       (lambda ()
+         (let ((group (ilist-get-group)))
+           (and group (not (string= group current-group)))))))
+     ((ilist-get-index)
+      (save-excursion
+        (blist-next-group -1)
+        (blist-toggle-other-groups)))
+     ((user-error "Not at a group header or item")))))
 
 ;;;; Toggle location display
 

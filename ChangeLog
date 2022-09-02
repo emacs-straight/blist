@@ -1,3 +1,9 @@
+2022-09-01  Durand  <mmemmew@gmail.com>
+
+	* blist.el: (blist-toggle-other-groups): New function to toggle
+	the visibility of all other groups than the group at which the
+	cursor is currently.
+
 2021-12-29  Stefan Monnier <monnier@iro.umontreal.ca>
 
 	Correct the uses of unnecessary autoload cookies.
