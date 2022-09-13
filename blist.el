@@ -2,8 +2,10 @@
 
 ;; Copyright (C) 2021  Free Software Foundation, Inc.
 
-;; Author: Durand <mmemmew@gmail.com>
+;; Author: Durand <durand@jsdurand.xyz>
 ;; Keywords: convenience
+;; URL: https://gitlab.com/mmemmew/blist
+;; Package-Requires: ((ilist "0.1") (emacs "24"))
 ;; Version: 0.2
 
 ;; This program is free software; you can redistribute it and/or modify
