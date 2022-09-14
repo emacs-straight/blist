@@ -528,6 +528,11 @@ Mark bookmarks whose location matches a regular expression.
 @kindex * c
 @item * c
 Change the marks from OLD to NEW (using @code{read-char})
+@kindex t
+@cindex toggle
+@item t
+Toggle marks: an item is going to be marked if and only if it is
+currently not marked.
 @end table
 
 @node Jump to bookmarks, Annotations, Marking, Usage
@@ -585,6 +590,28 @@ completion.
 @section Others
 
 @cindex miscellaneous
+
+@table @kbd
+@kindex R
+@item R
+@cindex relocate
+Relocate the bookmark.
+@kindex r
+@cindex rename
+@item r
+Rename the bookmark.
+@kindex l
+@cindex load
+@item l
+Load bookmarks from a file, and prepend these bookmarks to the front of
+the bookmarks list.
+@kindex S-RET
+@cindex toggle
+@item S-RET
+Toggle all other groups than the group at which the cursor sits.  This
+creates a kind of narrowing effect, and is fun to apply on different
+groups successively.
+@end table
 
 Some functions are too minor to record here.  Use @code{describe-mode}
 in the list of bookmarks to see all available key-bindings.

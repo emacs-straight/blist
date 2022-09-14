@@ -244,6 +244,8 @@ Unless stated otherwise, they all follow the *P-convention*.
 - =% n=: Mark bookmarks whose name matches a regular expression.
 - =% l=: Mark bookmarks whose location matches a regular expression.
 - =* c=: Change the marks from OLD to NEW (using =read-char=)
+- =t=: Toggle marks: an item is going to be marked if and only if it
+  is currently not marked.
 
 ** Jump to bookmarks
 
@@ -270,6 +272,14 @@ annotations of bookmarks.
   completion.
 
 ** Others
+
+- =R=: Relocate the bookmark.
+- =r=: Rename the bookmark.
+- =l=: Load bookmarks from a file, and prepend these bookmarks to the
+  front of the bookmarks list.
+- =S-RET=: Toggle all other groups than the group at which the cursor
+  sits.  This creates a kind of narrowing effect, and is fun to apply
+  on different groups successively.
 
 Some functions are too minor to record here.  Use =describe-mode= in
 the list of bookmarks to see all available key-bindings.
